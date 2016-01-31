@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -86,15 +87,27 @@ public class MainActivity extends AppCompatActivity {
 
     public void fromCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, 1);
-        getOutputMediaFile();
-    }
+        //getOutputMediaFile();
 
+        File photoFile = null;
+
+        try {
+            photoFile = CreateImageFile();
+        } catch (IOException ex) {
+            // Error
+        }
+
+        if (photoFile != null) {
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+            startActivityForResult(intent, 1);
+        }
+    }
+/*
     private static Uri getOutputMediaFileUri() {
         return Uri.fromFile(getOutputMediaFile());
     }
-
-    private static File getOutputMediaFile() {
+*/
+    private File CreateImageFile() throws IOException {
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "audiogram");
 
@@ -106,8 +119,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "AG_I_" + timeStamp + ".jpg");
+        String imageFileName = "A_I_" + timeStamp + "_";
+        File mediaFile = File.createTempFile(imageFileName, ".jpg", mediaStorageDir);
+        //mediaFile = new File(mediaStorageDir.getPath() + File.separator + "AG_I_" + timeStamp + ".jpg");
         return mediaFile;
     }
 
